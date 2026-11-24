@@ -46,6 +46,8 @@ projekt/
 ├── assets/           CSS und JavaScript (manuell gepflegt)
 ├── build.py          Erzeugt site-data.js aus der Ordnerstruktur
 ├── site-data.js       Generierte Navigationsdaten (nicht von Hand ändern)
+├── site-config.json   Lokale Angaben: Titel und Links (nicht committet)
+├── site-config.example.json	Vorlage für site-config.json
 ├── dokumente/        BeispielOrdner -> Navigationspunkt
 │   ├── index.md      Übersichtsseite des Ordners
 │   └── einstieg.md   Weitere Seite
@@ -60,24 +62,34 @@ Versteckte Dateien und Ordner (beginnend mit `.`), `assets`, `node_modules`,
 `site-data.js`). Die Liste steht oben in `build.py` unter `IGNORED_DIRS`
 und `IGNORED_FILES` und kann angepasst werden.
 
-## Website-Titel ändern
+## Website-Titel und Kopfzeilen-Links
 
-Zwei Stellen:
+Titel (Kopfzeile und Browser-Tab) sowie die Profil-Links der Kopfzeile
+(GitHub, Codeberg, Mastodon) stehen in der lokalen Datei
+`site-config.json`:
 
-1. In `build.py` der Wert `SITE_TITLE` (erscheint in der Kopfzeile).
-2. In `index.html` der Eintrag im `<title>`-Tag (Startwert im Browser-Tab).
+```json
+{
+  "title": "Meine Website",
+  "links": {
+    "github": "https://github.com/dein-nutzer",
+    "codeberg": "https://codeberg.org/dein-nutzer",
+    "mastodon": "https://mastodon.social/@dein-nutzer"
+  }
+}
+```
 
-Danach `python3 build.py` ausführen.
+Als Vorlage dient `site-config.example.json`: einfach kopieren, Werte
+eintragen und danach `python3 build.py` ausführen. Beim Build werden die
+Werte in `site-data.js` eingebaut; Titel und Link-Adressen übernimmt die
+Seite von dort.
 
-## Links in der Kopfzeile (GitHub, Codeberg, Mastodon)
+`site-config.json` enthält persönliche Angaben und steht in `.gitignore` –
+sie wird nicht mit committet. Ohne diese Datei baut `build.py` mit den
+Platzhalter-Standardwerten.
 
-Die drei Logos in der Kopfzeile verlinken standardmäßig auf die
-Platzhalter-Adressen `https://github.com/dein-nutzer`,
-`https://codeberg.org/dein-nutzer` und `https://mastodon.social/@dein-nutzer`.
-In `index.html` im Abschnitt `<!-- Links: bitte die Platzhalter-URLs ... -->`
-die `href`-Attribute durch die eigenen Profil-Adressen ersetzen.
-
-Soll ein Link entfernt werden, genügt es, das zugehörige `<a>`-Element zu
+Soll ein Link ganz verschwinden, den Eintrag auf eine Leerzeichen-freie
+leere Angabe setzen bzw. das zugehörige `<a>`-Element in `index.html`
 löschen. Neue Logos lassen sich als weiteres `<a>` mit eigenem Inline-SVG
 ergänzen.
 

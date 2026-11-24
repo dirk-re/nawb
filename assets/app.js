@@ -388,6 +388,15 @@
       titleEl.textContent = data.title;
       document.title = data.title;
     }
+    if (data.links) {
+      var linkAnchors = document.querySelectorAll(".top-links a");
+      for (var li = 0; li < linkAnchors.length; li++) {
+        var key = (linkAnchors[li].getAttribute("title") || "").toLowerCase();
+        if (data.links[key]) {
+          linkAnchors[li].setAttribute("href", data.links[key]);
+        }
+      }
+    }
     buildMaps();
 
     menuBtn.addEventListener("click", function () {
