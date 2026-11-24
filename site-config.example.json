@@ -1,0 +1,8 @@
+{
+  "title": "Meine Website",
+  "links": {
+    "github": "https://github.com/dein-nutzer",
+    "codeberg": "https://codeberg.org/dein-nutzer",
+    "mastodon": "https://mastodon.social/@dein-nutzer"
+  }
+}

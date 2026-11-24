@@ -1,0 +1,5 @@
+# Lokale Konfiguration (Titel, Profil-Links) - nicht committen
+site-config.json
+
+__pycache__/
+*.pyc

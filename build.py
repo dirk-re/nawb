@@ -11,6 +11,8 @@ Funktionsweise:
   eine Datei index.md ist die Uebersichtsseite des jeweiligen Ordners.
 - Das Skript schreibt die komplette Struktur und alle Seiteninhalte
   in die Datei site-data.js, die von index.html geladen wird.
+- Den Website-Titel und die Profil-Links der Kopfzeile liest das
+  Skript aus site-config.json (siehe site-config.example.json).
 
 Aufruf:
     python3 build.py            Navigation einmalig neu erzeugen
@@ -26,9 +28,17 @@ import time
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 DATA_FILE = os.path.join(BASE, "site-data.js")
+CONFIG_FILE = os.path.join(BASE, "site-config.json")
 
-# Titel der Website (erscheint in der Kopfzeile und im Browser-Tab)
-SITE_TITLE = "Meine Website"
+# Standardwerte, falls site-config.json fehlt (Vorlage: site-config.example.json)
+DEFAULT_CONFIG = {
+    "title": "Meine Website",
+    "links": {
+        "github": "https://github.com/dein-nutzer",
+        "codeberg": "https://codeberg.org/dein-nutzer",
+        "mastodon": "https://mastodon.social/@dein-nutzer",
+    },
+}
 
 # Ordner, die NICHT in die Navigation aufgenommen werden
 IGNORED_DIRS = {".git", ".github", ".idea", ".vscode", "node_modules",
@@ -38,6 +48,27 @@ IGNORED_DIRS = {".git", ".github", ".idea", ".vscode", "node_modules",
 IGNORED_FILES = {"README.md"}
 
 WATCH_INTERVAL = 0.5  # Sekunden (nur fuer --watch)
+
+
+def load_config():
+    """Liest site-config.json (lokal, nicht im Repository) fuer Titel und Links."""
+    try:
+        with open(CONFIG_FILE, encoding="utf-8") as f:
+            cfg = json.load(f)
+    except FileNotFoundError:
+        return DEFAULT_CONFIG, False
+    except (OSError, ValueError) as e:
+        print("WARNUNG: site-config.json ungueltig (%s), Standardwerte verwendet." % e)
+        return DEFAULT_CONFIG, False
+
+    if not isinstance(cfg, dict):
+        return DEFAULT_CONFIG, False
+    config = dict(DEFAULT_CONFIG)
+    config.update({k: v for k, v in cfg.items() if k != "links"})
+    config["links"] = dict(DEFAULT_CONFIG["links"])
+    if isinstance(cfg.get("links"), dict):
+        config["links"].update(cfg["links"])
+    return config, True
 
 
 def prettify(name):
@@ -125,6 +156,10 @@ def count_folders(nodes):
 
 
 def build():
+    config, has_config = load_config()
+    if not has_config:
+        print("Hinweis: site-config.json nicht vorhanden, Standardwerte werden verwendet.")
+
     # Unterordner des Projektverzeichnisses -> Hauptpunkte der Navigation
     tree = []
     for name in sorted(os.listdir(BASE)):
@@ -161,7 +196,8 @@ def build():
             print("WARNUNG: %s konnte nicht gelesen werden: %s" % (rel, e))
 
     data = {
-        "title": SITE_TITLE,
+        "title": config["title"],
+        "links": config["links"],
         "generatedAt": time.strftime("%Y-%m-%d %H:%M:%S"),
         "tree": tree,
         "rootPages": root_pages,
